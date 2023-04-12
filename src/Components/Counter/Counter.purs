@@ -3,7 +3,6 @@ module Components.Counter where
 import Prelude
 
 import Data.Interpolate (i)
-import Data.Maybe (Maybe(..))
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
 import React.Basic.DOM (button, div_, p_, text)
@@ -19,34 +18,26 @@ type Props =
 
 data CounterType = Increment | Decrement
 
-counterTypeToString :: CounterType -> String
-counterTypeToString = case _ of
-  Increment -> "incrementer"
-  Decrement -> "decrementer"
-
-counterTypeFromString :: String -> Maybe CounterType
-counterTypeFromString = case _ of
-  "incrementer" -> Just Increment
-  "decrementer" -> Just Decrement
-  _ -> Nothing
-
-mkCounter :: Component Props
-mkCounter = component "Counter" \props -> React.do 
+mkCounter :: Component {}
+mkCounter = component "Counter" \props -> React.do
     count /\ setCount <- useState' 0
     pure do
       div_
-        [ p_ [text $ i "You clicked " count " times"]
+        [ button
+          { onClick: onClickHandler count Decrement setCount
+          , children: [ text "-" ]
+          } ,
+          p_ [text $ i count]
         , button
-            { onClick: onClickHandler count setCount props
-            , children: [ text props.label ]   
-            } 
+            { onClick: onClickHandler count Increment setCount
+            , children: [ text "+" ]
+            }
         ]
 
-onClickHandler :: Int -> (Int -> Effect Unit) -> Props -> EventHandler
-onClickHandler count setCount props = handler_ do 
-  let next = step count props.counterType
-  setCount next
-  props.onClick next
+onClickHandler :: (Int) -> (CounterType) -> (Int -> Effect Unit) -> EventHandler
+onClickHandler count counterType setCount = handler_ do
+    let next = step count counterType
+    setCount next
 
 step :: Int -> CounterType -> Int
 step n counterType = case counterType of
