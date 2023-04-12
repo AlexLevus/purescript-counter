@@ -14,7 +14,6 @@ jobs:
         run: |
           npm install -g purescript@0.13.8
           npm install -g spago
-          npm ci
           spago build
 
       - name: Deploy 🚀
